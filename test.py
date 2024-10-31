@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
+import os
 import main
 
-TOKEN = 'MTMwMTE2MTM0Njg0MjIzNDk1Mw.GYCPc1.7wXYgp3VsC5wV2wWLLAymg7V_A4xWp-RWowUbo'
+TOKEN = os.environ['discordkey']
 GUILD_ID = 1300841680416538635
 CATALOG_CHANNEL_ID = 1300861513086799993
 READ_CHANNEL_ID = 1300841680965996596
@@ -152,4 +153,5 @@ async def on_ready():
     print(f"{bot.user} is now running!")
 
 # Run the bot
+main.keep_alive()
 bot.run(TOKEN)
