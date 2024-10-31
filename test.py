@@ -11,6 +11,7 @@ READ_CHANNEL_ID = 1300841680965996596
 TOS_ID = 1300858485868859424
 PAY_ID = 1300859905296695427
 FAQ_ID = 1301219045357654077
+CATALOG_CHANNEL_VN=1301536513141641217
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -52,8 +53,49 @@ catalog_text = (
     """**Product Catalogue**
 > *If you are interested in purchasing a specific item or want to check the current price list, please click below.
 > This way you will be able to see the selected product and familiarize yourself with available offers.
-> There this is only a relative price; it may change slightly depending on when you purchase them.
-> For Vietnam customers, you may benefit from local pricing, applicable only via bank/Momo transfer.*"""
+> There this is only a relative price; it may change slightly depending on when you purchase them.*"""
+)
+
+
+
+
+# Sample product catalog VN
+product_catalog_vn = {
+    "Nitro": """> **:money_with_wings:  Giá Nitro**
+> 
+> Nitro Boost 1 tháng >> **160k (rất ít hàng)**
+> Nitro Boost 1 năm >> **550k USD (húp lẹ không hết)**""",
+    
+    "Server Boost": """> **:money_with_wings:  Giá Server Boost**
+> 
+> x14 Server Boost 1 tháng >>** 70k**
+> x14 Server Boost 3 tháng >> **160 k**""",
+    
+    "Decorations": """Tạo ticket để được hỗ trợ nha ae!""",
+    
+    "Robux": """> **Giá Robux**
+> 
+> R$1000 >> **185k**
+> R$10000  >>** 1600k**""",
+    
+    "VPNs": """> **Giá VPN**
+> 
+> NordVPN 3 tháng >> **30k**
+> IPVanish 1 năm >> **100k (best deal)**""",
+    
+    "Streaming": """> **Giá Netflix và Spotify**
+> 
+> Spotify 1 tháng >>** 35k**
+> Netflix 1 tháng >> **60k**
+> Netflix 3 month >>** 165k**"""
+}
+
+catalog_text_vn = (
+    """**Danh mục giá bán**
+> *Nếu bạn muốn mua một mặt hàng cụ thể hoặc muốn kiểm tra bảng giá hiện tại, vui lòng nhấp vào bên dưới.
+> Bằng cách này, bạn sẽ có thể xem sản phẩm đã chọn và làm quen với các ưu đãi có sẵn.
+> Đây chỉ là mức giá tương đối, nó có thể thay đổi một chút tùy thuộc vào thời điểm bạn mua.
+> Chỉ chấp nhận Momo/Chuyển khoản ngân hàng. Không nhận thẻ cào!*"""
 )
 
 # Custom dropdown view for selecting a product
@@ -70,6 +112,20 @@ class ProductDropdown(discord.ui.Select):
         product_details = product_catalog[selected_product]
         
         await interaction.response.send_message(f"**{selected_product}**\n{product_details}", ephemeral=True)
+
+class ProductDropdown_vn(discord.ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label=product_name_vn, description="Chọn để xem thêm")
+            for product_name_vn in product_catalog_vn	
+        ]
+        super().__init__(placeholder="Chọn sản phẩm...", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_product_vn = self.values[0]
+        product_details_vn = product_catalog[selected_product_vn]
+        
+        await interaction.response.send_message(f"**{selected_product_vn}**\n{product_details_vn}", ephemeral=True)
 
 class ProductDropdownView(discord.ui.View):
     def __init__(self):
@@ -148,6 +204,10 @@ async def on_ready():
     channel = bot.get_channel(CATALOG_CHANNEL_ID)
     if channel:
         await send_if_empty(channel, catalog_text, view=ProductDropdownView())  # Reset the catalog on startup
+        
+    pay_vn = bot.get_channel(CATALOG_CHANNEL_VN)
+    if pay_vn:
+        await send_if_empty(pay_vn, catalog_text_vn, view=ProductDropdownView)
 
     await bot.tree.sync()  # Sync commands globally
     print(f"{bot.user} is now running!")
