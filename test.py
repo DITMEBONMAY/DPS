@@ -11,7 +11,7 @@ READ_CHANNEL_ID = 1300841680965996596
 TOS_ID = 1300858485868859424
 PAY_ID = 1300859905296695427
 FAQ_ID = 1301219045357654077
-CATALOG_CHANNEL_VN=1301536513141641217
+CATALOG_CHANNEL_VN = 1301536513141641217
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -27,7 +27,7 @@ product_catalog = {
     
     "Server Boost": """> **:money_with_wings:  Server Boost Price Lists**
 > 
-> x14 Server Boost 1 month >>** 3 USD**
+> x14 Server Boost 1 month >> **3 USD**
 > x14 Server Boost 3 month >> **6.5 USD**""",
     
     "Decorations": """Flexible pricing depends on what you chose, create a ticket to get the price!""",
@@ -35,7 +35,7 @@ product_catalog = {
     "Robux": """> **Robux Price List**
 > 
 > R$1000 >> **7.5 USD**
-> R$10000  >>** 65 USD**""",
+> R$10000 >> **65 USD**""",
     
     "VPNs": """> **VPN Price Lists**
 > 
@@ -44,22 +44,19 @@ product_catalog = {
     
     "Streaming": """> **Streaming Services Price Lists**
 > 
-> Spotify 1 month >>** 1.5 USD**
+> Spotify 1 month >> **1.5 USD**
 > Netflix 1 month >> **2.5 USD**
-> Netflix 3 month >>** 6.5 USD**"""
+> Netflix 3 month >> **6.5 USD**"""
 }
 
 catalog_text = (
     """**Product Catalogue**
 > *If you are interested in purchasing a specific item or want to check the current price list, please click below.
 > This way you will be able to see the selected product and familiarize yourself with available offers.
-> There this is only a relative price; it may change slightly depending on when you purchase them.*"""
+> Note: Prices may vary slightly based on purchase timing.*"""
 )
 
-
-
-
-# Sample product catalog VN
+# Vietnamese product catalog
 product_catalog_vn = {
     "Nitro": """> **:money_with_wings:  Giá Nitro**
 > 
@@ -68,7 +65,7 @@ product_catalog_vn = {
     
     "Server Boost": """> **:money_with_wings:  Giá Server Boost**
 > 
-> x14 Server Boost 1 tháng >>** 70k**
+> x14 Server Boost 1 tháng >> **70k**
 > x14 Server Boost 3 tháng >> **160 k**""",
     
     "Decorations": """Tạo ticket để được hỗ trợ nha ae!""",
@@ -76,7 +73,7 @@ product_catalog_vn = {
     "Robux": """> **Giá Robux**
 > 
 > R$1000 >> **185k**
-> R$10000  >>** 1600k**""",
+> R$10000 >> **1600k**""",
     
     "VPNs": """> **Giá VPN**
 > 
@@ -85,17 +82,16 @@ product_catalog_vn = {
     
     "Streaming": """> **Giá Netflix và Spotify**
 > 
-> Spotify 1 tháng >>** 35k**
+> Spotify 1 tháng >> **35k**
 > Netflix 1 tháng >> **60k**
-> Netflix 3 month >>** 165k**"""
+> Netflix 3 month >> **165k**"""
 }
 
 catalog_text_vn = (
     """**Danh mục giá bán**
 > *Nếu bạn muốn mua một mặt hàng cụ thể hoặc muốn kiểm tra bảng giá hiện tại, vui lòng nhấp vào bên dưới.
 > Bằng cách này, bạn sẽ có thể xem sản phẩm đã chọn và làm quen với các ưu đãi có sẵn.
-> Đây chỉ là mức giá tương đối, nó có thể thay đổi một chút tùy thuộc vào thời điểm bạn mua.
-> Chỉ chấp nhận Momo/Chuyển khoản ngân hàng. Không nhận thẻ cào!*"""
+> Lưu ý: Chỉ chấp nhận Momo/Chuyển khoản ngân hàng. Không nhận thẻ cào!*"""
 )
 
 # Custom dropdown view for selecting a product
@@ -123,27 +119,34 @@ class ProductDropdown_vn(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         selected_product_vn = self.values[0]
-        product_details_vn = product_catalog[selected_product_vn]
+        product_details_vn = product_catalog_vn[selected_product_vn]
         
         await interaction.response.send_message(f"**{selected_product_vn}**\n{product_details_vn}", ephemeral=True)
 
+# Update the ProductDropdownView to handle both English and Vietnamese versions
 class ProductDropdownView(discord.ui.View):
-    def __init__(self):
+    def __init__(self, vn=False):
         super().__init__()
-        self.add_item(ProductDropdown())
+        if vn:
+            self.add_item(ProductDropdown_vn())
+        else:
+            self.add_item(ProductDropdown())
 
 # Function to send messages only if the channel is empty
 async def send_if_empty(channel, content, view=None):
     async for message in channel.history(limit=1):
         if message.author == bot.user:
             return  # Message already sent by the bot, do nothing
+    
+    # Ensure view is a View object
+    if view is not None and not isinstance(view, discord.ui.View):
+        view = ProductDropdownView(vn=True)
+    
     await channel.send(content, view=view)  # Send the message if channel is empty
-
 
 # Initialize the bot and sync commands
 @bot.event
 async def on_ready():
-    # Send "Hello" to the specified channel if it's empty
     hello_channel = bot.get_channel(READ_CHANNEL_ID)
     if hello_channel:
         await send_if_empty(hello_channel, f"""> Discover the best Services at **DPS Store**
@@ -161,7 +164,7 @@ async def on_ready():
 > **Support & Delivery:**
 > We aim to respond to support inquiries within 12 hours, with a maximum of 48 hours in rare cases.
 > We prioritize timely delivery, but unforeseen technical issues may cause delays.
-> We use secure payment methods like Bank Transfer (VN) or Crypto and many others ([click for more details](https://discord.com/channels/1300841680416538635/1300859905296695427) ).
+> We use secure payment methods like Bank Transfer (VN) or Crypto and many others.
 > Your personal information is kept confidential and only for legal purposes.
 > Our products are legal and safe to use without risking account bans.
 > 
@@ -188,7 +191,6 @@ async def on_ready():
 > 
 > **Note: If you pay with cryptocurrencies/Momo/bank transfer, ask about the possibility of receiving a discount, which is available in most offers.**""")
         
-        
     faq = bot.get_channel(FAQ_ID)
     if faq:
         await send_if_empty(faq, f"""> **How will I receive my product after payment?**
@@ -207,7 +209,7 @@ async def on_ready():
         
     pay_vn = bot.get_channel(CATALOG_CHANNEL_VN)
     if pay_vn:
-        await send_if_empty(pay_vn, catalog_text_vn, view=ProductDropdownView)
+        await send_if_empty(pay_vn, catalog_text_vn, view=ProductDropdown_vn())
 
     await bot.tree.sync()  # Sync commands globally
     print(f"{bot.user} is now running!")
